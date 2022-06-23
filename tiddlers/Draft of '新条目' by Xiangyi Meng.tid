@@ -1,0 +1,11 @@
+created: 20220623125428924
+creator: Xiangyi Meng
+draft.of: 新条目
+draft.title: SGX Paging
+modified: 20220623125538167
+modifier: Xiangyi Meng
+tags: Unikraft
+title: Draft of '新条目' by Xiangyi Meng
+type: text/vnd.tiddlywiki
+
+check `plat/common/paging.c` and `plat/common/include/x86/paging.h` for APIs that map PA to VA
