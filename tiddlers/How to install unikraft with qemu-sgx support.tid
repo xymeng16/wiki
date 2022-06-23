@@ -1,0 +1,27 @@
+created: 20220623081957222
+creator: Xiangyi Meng
+modified: 20220623085528311
+modifier: Xiangyi Meng
+tags: Unikraft
+title: How to install unikraft with qemu-sgx support
+type: text/vnd.tiddlywiki
+
+# sudo apt-get install -y no-install-recommends build-essential libncurses-dev libyaml-dev flex git wget socat bison unzip uuid-runtime
+# pip install user -e . (kraft directory) and add ~/.local/bin into PATH
+# UK_KRAFT_GITHUB_TOKEN=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 kraft list update (if timeout happens repeatedly, try to use `export all_proxy="socks5://10.3.100.207:8080"` with CityU CSLab SSH sock5 proxy)
+# replace scirpts: ln -sf /home/xiangyi/code/unikernel/kraft/scripts/* /home/xiangyi/.local/bin/
+# follow this page to build qemu with sgx support: (for hyper-v sgx support, please ref to [ext[https://github.com/openenclave/openenclave/blob/master/docs/GettingStartedDocs/HyperVLinuxVMSetup.md]] and [[Hyper-V SGX FLC]], but make sure to use powershell v5, v7 will have some strange errors) [ext[https://www.intel.com/content/www/us/en/developer/articles/technical/virtualizing-intel-software-guard-extensions-with-kvm-and-qemu.html]]
+
+## install dependencies: 
+### clone and build spice-protocol from git:/ /git.freedesktop.org/git/spice/spice-protocol<div>
+mkdir build && cd build<br>
+meson ..<br>
+sudo ninja install</div>
+
+### sudo apt install libspice-server-dev libncurses5-dev libgtk-3-dev
+
+## ../configure with-git-submodules=ignore enable-kvm enable-vnc enable-curses enable-spice enable-gtk target-list=x86_64-softmmu disable-werror
+## make -j12
+## sudo x86_64-softmmu/qemu-system-x86_64 -nographic -enable-kvm -cpu host,+sgx-provisionkey -object memory-backend-epc,id=mem1,size=64M,prealloc=on -M sgx-epc.0.memdev=mem1,sgx-epc.0.node=0
+
+use ctrl+a, x to exit

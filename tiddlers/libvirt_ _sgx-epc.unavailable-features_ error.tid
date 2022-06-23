@@ -1,0 +1,41 @@
+created: 20220623085202041
+creator: Xiangyi Meng
+modified: 20220623085241857
+modifier: Xiangyi Meng
+tags: Unikraft
+title: libvirt: "sgx-epc.unavailable-features" error
+type: text/vnd.tiddlywiki
+
+if someone is facing "sgx-epc.unavailable-features" error on libvirt, please apply the following patch:
+
+```patch
+diff --git a/hw/core/qdev.c b/hw/core/qdev.c
+index 84f3019440..81425f1e8b 100644
+--- a/hw/core/qdev.c
++++ b/hw/core/qdev.c
+@@ -497,7 +497,7 @@ static void device_set_realized(Object *obj, bool value, Error **errp)
+     NamedClockList *ncl;
+     Error *local_err = NULL;
+     bool unattached_parent = false;
+-    static int unattached_count;
++    static int unattached_count, sgx_count;
+ 
+     if (dev->hotplugged && !dc->hotpluggable) {
+         error_setg(errp, QERR_DEVICE_NO_HOTPLUG, object_get_typename(obj));
+@@ -508,8 +508,14 @@ static void device_set_realized(Object *obj, bool value, Error **errp)
+         if (!check_only_migratable(obj, errp)) {
+             goto fail;
+         }
++        
++        if (!obj->parent && !strcmp(object_get_typename(obj), "sgx-epc")) {
++            gchar *name = g_strdup_printf("device[%d]", sgx_count++);
+ 
+-        if (!obj->parent) {
++            object_property_add_child(container_get(qdev_get_machine(), "/sgx"),name, obj);
++            unattached_parent = true;
++            g_free(name);
++        } else if (!obj->parent) {
+             gchar *name = g_strdup_printf("device[%d]", unattached_count++);
+ 
+             object_property_add_child(container_get(qdev_get_machine(),
+```

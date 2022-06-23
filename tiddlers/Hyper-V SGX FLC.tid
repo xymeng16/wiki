@@ -1,0 +1,18 @@
+created: 20220623085345467
+creator: Xiangyi Meng
+modified: 20220623085429684
+modifier: Xiangyi Meng
+tags: SGX Hyper-V
+title: Hyper-V SGX FLC
+type: text/vnd.tiddlywiki
+
+related to Hyper-V SGX:
+Here is some information we have received.
+
+SgxLaunchControlMode: Flexible launch control (FLC) mode allows the guest's operating system to control which enclaves to be launched on the host. The specified MSR here is IA32_SGXLEPUBKEYHASH*.
+
+0 – NoAccess: The FLC MSRs are not exposed to the guest at all
+1 – ReadOnly: The FLC MSRs are only readable but not writable from the guest
+2 – ReadWrite: The FLC MSRs are read-writeable for the guest
+
+SgxLaunchControlDefault specified the default SGX launch control MSR values. Each 64-bit MSR value must be specified as a 16 character little-endian hexadecimal number.
