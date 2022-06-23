@@ -1,0 +1,29 @@
+created: 20220623091735155
+creator: Xiangyi Meng
+modified: 20220623091821396
+modifier: Xiangyi Meng
+tags: SGX
+title: Sean Christopherson's comments on SGX_LC virtualization
+type: text/vnd.tiddlywiki
+
+On Wed, Apr 27, 2022, MENG Xiangyi wrote:
+
+> I am quietly confused with this bug because the kernel message indicates that SGX should work fine. But sgx_enclave will not appear. Or that is to say, due to the launch control unavailability, even qemu and kvm cannot emulate LC to the guest,
+
+Yes, sadly.  EINIT cannot be virtualized in the sense that KVM cannot specify a
+set of virtual LEPUBKEYHASH MSRs.  KVM must overwrite the "real" MSRs in order to
+use a differently key for the guest.
+
+> meaning that I must use a kernel without in-tree SGX support and install the OOT driver by myself even for a guest OS, am I right?
+
+You will need to use the OOT driver, but if you can rebuild the kernel, then
+building with CONFIG_X86_SGX=n should be sufficient to allow the OOT driver to
+load and run cleanly.  I.e. you don't necessarily have to downgrade your kernel.
+
+And I think it would even work with CONFIG_X86_SGX=y.  As long as nothing uses the
+in-tree /dev/sgx_enclave device, there will be no contention over EPC memory.
+The in-tree driver will track the EPC and waste a small amount of memory doing so,
+but post-boot it shouldn't actually do anything with the EPC.
+
+I don't work on SGX anymore and don't have access to SGX hardware so I can't test,
+but I'm happy to answer questions.

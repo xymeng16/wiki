@@ -1,0 +1,120 @@
+created: 20220623091035750
+creator: Xiangyi Meng
+modified: 20220623091154949
+modifier: Xiangyi Meng
+tags: Unikraft
+title: VSCode Debug Configuration
+type: text/vnd.tiddlywiki
+
+`launch.json`
+
+```json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "helloworld-sgx-debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "preLaunchTask": "run helloworld-sgx-dbg",
+            "miDebuggerServerAddress": "127.0.0.1:1234",
+            "program": "/home/xiangyi/code/unikraft/apps/helloworld/build/helloworld_kvm-x86_64.dbg",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "logging": {
+                "engineLogging": false
+            },
+            "MIMode": "gdb",
+            "hardwareBreakpoints": {
+                "require": true,
+                "limit": 2
+             }
+        }
+    ]
+}
+```
+
+`tasks.json`
+
+```json
+{
+    // https://code.visualstudio.com/docs/editor/tasks
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "run helloworld-sgx-dbg",
+            "type": "shell",
+            "isBackground": true,
+            "options": {
+                "cwd": "/home/xiangyi/code/unikraft/apps/helloworld"
+            },
+            "command": "kraft",
+            "args": [
+                "-v",
+                "run",
+                "-P",
+                "-d",
+                "-p",
+                "kvm",
+                "-m",
+                "x86_64",
+                "-g",
+                "1234",
+                "-M",
+                "128"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            // This task is run before some debug tasks.
+            // Problem is, it's a watch script, and since it never exits, VSCode
+            // complains. All this is needed so VSCode just lets it run.
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": ".",
+                        "endsPattern": ".",
+                    }
+                }
+            ]
+        }
+    ]
+}
+```
+
+`c_cpp_properties.json`
+
+```json
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
+```
