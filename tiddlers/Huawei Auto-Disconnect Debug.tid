@@ -1,0 +1,53 @@
+created: 20220712072835425
+creator: Xiangyi Meng
+modified: 20220712080506244
+modifier: Xiangyi Meng
+tags: microG 日志
+title: Huawei Auto-Disconnect Debug
+type: text/vnd.tiddlywiki
+
+Log:
+
+```
+07-12 14:55:47.283 15034  8083 D GmsGcmMcsSvc: I/O error: javax.net.ssl.SSLException: Read error: ssl=0x70053ddd08: I/O error during system call, Software caused connection abort
+07-12 14:55:47.288 15034 15728 D GmsGcmMcsSvc: Teardown initiated, reason: javax.net.ssl.SSLException: Read error: ssl=0x70053ddd08: I/O error during system call, Software caused connection abort
+07-12 14:55:47.289 15034 15728 D GmsGcmMcsSvc: Closing all sockets...
+07-12 14:55:47.297 15034 15728 D GmsGcmMcsSvc: Scheduling reconnect in 5 seconds...
+07-12 14:56:02.484 15034 15034 D GmsGcmTrigger: Ignoring Intent { act=org.microg.gms.gcm.mcs.RECONNECT flg=0x14 hwFlg=0x900 cmp=com.google.android.gms/org.microg.gms.gcm.TriggerReceiver (has extras) }: network is offline, scheduling new attempt.
+07-12 14:56:02.488 15034 15034 D GmsGcmMcsSvc: Scheduling reconnect in 10 seconds...
+07-12 15:01:02.623 15034 15034 D GmsGcmTrigger: Ignoring Intent { act=org.microg.gms.gcm.mcs.RECONNECT flg=0x14 hwFlg=0x900 cmp=com.google.android.gms/org.microg.gms.gcm.TriggerReceiver (has extras) }: network is offline, scheduling new attempt.
+07-12 15:01:02.626 15034 15034 D GmsGcmMcsSvc: Scheduling reconnect in 20 seconds...
+07-12 15:03:47.759 15034 15034 D GmsGcmMcsSvc: Connection is not enabled or dead.
+07-12 15:03:47.759 15034 15034 D GmsGcmTrigger: Not connected to GCM but should be, asking the service to start up. Triggered by: Intent { act=org.microg.gms.gcm.mcs.RECONNECT flg=0x14 hwFlg=0x900 cmp=com.google.android.gms/org.microg.gms.gcm.TriggerReceiver (has extras) }
+07-12 15:03:47.769 15034 15728 D GmsGcmMcsSvc: Connect initiated, reason: Intent { act=org.microg.gms.gcm.mcs.RECONNECT flg=0x14 hwFlg=0x900 cmp=com.google.android.gms/org.microg.gms.gcm.TriggerReceiver (has extras) }
+07-12 15:03:47.769 15034 15728 D GmsGcmMcsSvc: Connection is not enabled or dead.
+07-12 15:03:47.769 15034 15728 D GmsGcmMcsSvc: Closing all sockets...
+07-12 15:03:47.779 15034 15728 D GmsGcmMcsSvc: Starting MCS connection...
+07-12 15:03:47.830 15034 15728 D GmsGcmMcsSvc: Connected to mtalk.google.com:5228
+07-12 15:03:47.833 15034 15728 D GmsGcmMcsSvc: Activated SSL with mtalk.google.com:5228
+07-12 15:03:47.871 15034 15728 D GmsGcmMcsSvc: Scheduling heartbeat in 60 seconds...
+07-12 15:03:47.880 15034  9411 D GmsGcmMcsSvc: Sending login request...
+07-12 15:03:47.889 15034  9411 D GmsGcmMcsOutput: Outgoing message: LoginRequest{id=android-29, domain=mcs.android.com, user=4095803167727723824, resource=4095803167727723824, auth_token=8303072363060400678, device_id=android-38d73747d254a530, setting=[Setting{name=new_vc, value=1}], received_persistent_id=[0:1657607397141896%af81bdbff9fd7ecd|0:1657607397940248%af81bdbff9fd7ecd|0:1657607423271159%af81bdbff9fd7ecd|0:1657608058263331%af81bdbff9fd7ecd|0:1657608059802127%af81bdbff9fd7ecd|0:1657608066069892%af81bdbff9fd7ecd|0:1657608067292590%af81bdbff9fd7ecd|0:1657608074819334%af81bdbff9fd7ecd|0:1657608196341669%af81bdbff9fd7ecd|0:1657608930578336%af81bdbff9fd7ecd|0:1657608933948778%af81bdbff9fd7ecd], adaptive_heartbeat=false, use_rmq2=true, auth_service=ANDROID_ID, network_type=1}
+07-12 15:03:47.889 15034  9411 D GmsGcmMcsOutput: Write MCS version code: 41
+07-12 15:03:47.911 15034  9410 D GmsGcmMcsInput: Reading from MCS version: 41
+07-12 15:03:47.936 15034  9410 D GmsGcmMcsInput: Incoming message: LoginResponse{id=android-29, jid=user@firebase.com/notifications, last_stream_id_received=1, server_timestamp=1657609426966}
+07-12 15:03:47.939 15034  9410 D GmsGcmMcsSvc: Logged in
+```
+
+Seems it is due to the lost of network connection or SSL exception, but not "being killed by Powergenie or something". This is confirmed by the following piece of code in `TriggerReciver.java`
+
+```java
+NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+
+if (!force) {
+                if (networkInfo == null || !networkInfo.isConnected()) {
+                    Log.d(TAG, "Ignoring " + intent + ": network is offline, scheduling new attempt.");
+                    McsService.scheduleReconnect(context);
+                    return;
+                } else if (!GcmPrefs.get(context).isEnabledFor(networkInfo)) {
+                    Log.d(TAG, "Ignoring " + intent + ": gcm is disabled for " + networkInfo.getTypeName());
+                    return;
+                }
+            }
+```
+Hence, a graceful handle of different network lost should be implemented.
