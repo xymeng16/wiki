@@ -1,0 +1,21 @@
+created: 20220926083239508
+creator: Xiangyi Meng
+modified: 20220926085851780
+modifier: Xiangyi Meng
+tags: [[Side Channel]] 日志
+title: Composable Cachelets
+type: text/vnd.tiddlywiki
+wysiwyg: yes
+
+Published at USENIX Security 22 which mitigates cache side-channel attacks.
+
+
+
+!!! Composable Cachelets:
+
+
+
+<img ></img>
+Aiming at tracking the allocation of cachelets to various enclaves, CC assigns each physical cachelet a unique cachelet identifier comprised of the cachelet’s set and way offsets within the cache.
+
+CFL: cachelet free list
