@@ -1,6 +1,6 @@
 created: 20220926083239508
 creator: Xiangyi Meng
-modified: 20220926085851780
+modified: 20220926091737086
 modifier: Xiangyi Meng
 tags: [[Side Channel]] 日志
 title: Composable Cachelets
@@ -11,11 +11,29 @@ Published at USENIX Security 22 which mitigates cache side-channel attacks.
 
 
 
-!!! Composable Cachelets:
+!!! Cache:
+
+Divided into several cache lines, common size is 64 byte.
+
+
+
+<img ></img>
+Address mapping: from virtual address to linear address to physical address
+
+
+
+<img ></img>
+!!! Composable Cachelets (CC):
 
 
 
 <img ></img>
 Aiming at tracking the allocation of cachelets to various enclaves, CC assigns each physical cachelet a unique cachelet identifier comprised of the cachelet’s set and way offsets within the cache.
 
-CFL: cachelet free list
+CFL: cachelet free list, a FIFO-like structure analogous to the free list in register renaming schemes
+
+VPT: virtual partition table, which holds a cachelet identifier entry for each cachelet allocated to the running enclave (a)
+
+
+
+CC intercepts memory accesses from enclaves and remaps them to cachelets defined in the enclave's VPT. The remapping logic masks the address so that it indexes to a cachelet set (b).
