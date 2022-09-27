@@ -8,7 +8,13 @@
 	</url>
 	<url>
 		<loc>https://onetwo.ren/wiki/#:Composable%2520Cachelets</loc>
-		<lastmod>2022-09-26</lastmod>
+		<lastmod>2022-09-27</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.5</priority>
+	</url>
+	<url>
+		<loc>https://onetwo.ren/wiki/#:Draft%2520of%2520&apos;Composable%2520Cachelets&apos;%2520by%2520Xiangyi%2520Meng</loc>
+		<lastmod>2022-09-27</lastmod>
 		<changefreq>monthly</changefreq>
 		<priority>0.5</priority>
 	</url>
